@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.geowebcache</groupId>
     <artifactId>geowebcache</artifactId>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.6-SQLITE</version>
   </parent>
   <groupId>org.geowebcache</groupId>
   <artifactId>gwc-core</artifactId>
@@ -154,6 +154,11 @@
 	  <version>1.1</version>
 	</dependency>
 
+	<dependency>
+		<groupId>org.xerial</groupId>
+		<artifactId>sqlite-jdbc</artifactId>
+		<version>3.7.15-M1</version>
+	</dependency>
   </dependencies>
 
 

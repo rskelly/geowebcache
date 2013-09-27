@@ -69,11 +69,11 @@
   <bean id="gwcDefaultStorageFinder" class="org.geowebcache.storage.DefaultStorageFinder">
   	<constructor-arg ref="gwcAppCtx" />
   </bean>
-
-  <bean id="gwcBlobStore" class="org.geowebcache.storage.blobstore.file.FileBlobStore" destroy-method="destroy">
+   
+  <bean id="gwcBlobStore" class="org.geowebcache.storage.blobstore.file.SQLiteBlobStore" destroy-method="destroy">
     <constructor-arg ref="gwcDefaultStorageFinder" />
   </bean>
-  
+
   <!-- Static definition of where to put the blobstore. 
        Note that the directory MUST EXIST when GWC is started. -->
   <!-- bean id="gwcBlobStore" class="org.geowebcache.storage.blobstore.file.FileBlobStore" destroy-method="destroy">
