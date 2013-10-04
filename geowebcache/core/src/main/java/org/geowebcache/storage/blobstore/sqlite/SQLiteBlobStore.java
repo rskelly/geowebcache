@@ -20,6 +20,7 @@ package org.geowebcache.storage.blobstore.sqlite;
 import static org.geowebcache.storage.blobstore.file.FilePathUtils.*;
 
 import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -339,7 +340,7 @@ public class SQLiteBlobStore implements BlobStore {
 			PreparedStatement stmt = conn
 					.prepareStatement("INSERT OR REPLACE INTO tiles (grid_set_id, x, y, z, type, data) VALUES (?, ?, ?, ?, ?, ?)");
 			try {
-				byte[] bytes = new byte[blob.getSize()];
+				byte[] bytes = new byte[(int) blob.getSize()];
 				InputStream in = blob.getInputStream();
 				in.read(bytes);
 				in.close();
