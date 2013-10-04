@@ -360,7 +360,7 @@ public class SQLiteBlobStore implements BlobStore {
 			} finally {
 				stmt.close();
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new StorageException(e.getMessage());
 		}
 	}
