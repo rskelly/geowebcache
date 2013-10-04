@@ -333,16 +333,18 @@ public class SQLiteBlobStore implements BlobStore {
 		final String gridSetId = stObj.getGridSetId();
 		final String format = stObj.getBlobFormat();
 		final long[] xyz = stObj.getXYZ();
+		final Resource blob = stObj.getBlob();
 		Connection conn = getConnection(layerName);
 		try {
 			PreparedStatement stmt = conn
-					.prepareStatement("INSERT OR REPLACE INTO tiles (grid_set_id, x, y, z, type) VALUES (?, ?, ?, ?, ?)");
+					.prepareStatement("INSERT OR REPLACE INTO tiles (grid_set_id, x, y, z, type, data) VALUES (?, ?, ?, ?, ?, ?)");
 			try {
 				stmt.setString(1, gridSetId);
 				stmt.setLong(2, xyz[0]);
 				stmt.setLong(3, xyz[1]);
 				stmt.setLong(4, xyz[2]);
 				stmt.setString(5, format);
+				stmt.setBlob(6, blob.getInputStream());
 				stmt.execute();
 				// TODO: Code for update.
 				// if (existed) {
