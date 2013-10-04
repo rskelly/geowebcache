@@ -85,6 +85,11 @@ public class SQLiteBlobStore implements BlobStore {
 	 */
 	public SQLiteBlobStore(String path) throws StorageException {
 		this.path = path;
+		try {
+			Class.forName("org.sqlite.JDBC");
+		} catch (ClassNotFoundException e) {
+			throw new StorageException("Couldn't load SQLite driver class.", e);
+		}
 		log.info("Configured SQLiteBlobStore with path " + path);
 	}
 
@@ -126,11 +131,6 @@ public class SQLiteBlobStore implements BlobStore {
 	 */
 	private Connection createDatabase(File file) throws SQLException {
 		log.info("Creating SQLite tile database " + file.getName());
-		try {
-			Class.forName("org.sqlite.JDBC");
-		} catch (ClassNotFoundException e) {
-			throw new SQLException("Couldn't load SQLite driver class.", e);
-		}
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"
 				+ file.getAbsolutePath());
 		conn.createStatement()
