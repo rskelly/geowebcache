@@ -344,7 +344,7 @@ public class SQLiteBlobStore implements BlobStore {
 				stmt.setLong(3, xyz[1]);
 				stmt.setLong(4, xyz[2]);
 				stmt.setString(5, format);
-				stmt.setBlob(6, blob.getInputStream());
+				stmt.setBinaryStream(6, blob.getInputStream());
 				stmt.execute();
 				// TODO: Code for update.
 				// if (existed) {
