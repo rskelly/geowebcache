@@ -309,6 +309,8 @@ public class SQLiteBlobStore implements BlobStore {
 				ResultSet rslt = stmt.executeQuery();
 				if (rslt.next()) {
 					Resource r = new ByteArrayResource(rslt.getBytes("data"));
+					if(r.getSize() <= 0)
+						return false;
 					stObj.setBlob(r);
 					stObj.setCreated(r.getLastModified());
 					stObj.setBlobSize((int) r.getSize());
