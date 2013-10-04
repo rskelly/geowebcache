@@ -137,7 +137,7 @@ public class SQLiteBlobStore implements BlobStore {
 				.execute(
 						"CREATE TABLE tiles (grid_set_id text, x integer, y integer, z integer, type text, data blob)");
 		conn.createStatement().execute(
-				"CREATE TABLE meta (key text, value text");
+				"CREATE TABLE meta (key text, value text)");
 		return conn;
 	}
 
