@@ -334,7 +334,7 @@ public class SQLiteBlobStore implements BlobStore {
 		Connection conn = getConnection(layerName);
 		try {
 			PreparedStatement stmt = conn
-					.prepareStatement("INSERT OR REPLACE INTO tiles (grid_set_id, x, y, z, type) VALUES (?, ?, ?, ?, type)");
+					.prepareStatement("INSERT OR REPLACE INTO tiles (grid_set_id, x, y, z, type) VALUES (?, ?, ?, ?, ?)");
 			try {
 				stmt.setString(1, gridSetId);
 				stmt.setLong(2, xyz[0]);
