@@ -339,12 +339,16 @@ public class SQLiteBlobStore implements BlobStore {
 			PreparedStatement stmt = conn
 					.prepareStatement("INSERT OR REPLACE INTO tiles (grid_set_id, x, y, z, type, data) VALUES (?, ?, ?, ?, ?, ?)");
 			try {
+				byte[] bytes = new byte[blob.getSize()];
+				InputStream in = blob.getInputStream();
+				in.read(bytes);
+				in.close();
 				stmt.setString(1, gridSetId);
 				stmt.setLong(2, xyz[0]);
 				stmt.setLong(3, xyz[1]);
 				stmt.setLong(4, xyz[2]);
 				stmt.setString(5, format);
-				stmt.setBinaryStream(6, blob.getInputStream());
+				stmt.setBytes(6, bytes);
 				stmt.execute();
 				// TODO: Code for update.
 				// if (existed) {
