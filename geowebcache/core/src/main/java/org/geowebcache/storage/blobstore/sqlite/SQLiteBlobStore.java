@@ -160,6 +160,10 @@ public class SQLiteBlobStore implements BlobStore {
 	 */
 	public boolean delete(final String layerName) throws StorageException {
 		log.info("Deleting SQLite cached layer " + layerName);
+		Connection conn = connections.remove(layerName);
+		try {
+			conn.close();
+		} catch(Exception e){}
 		return getLayerPath(layerName).delete();
 	}
 
@@ -201,6 +205,10 @@ public class SQLiteBlobStore implements BlobStore {
 	public boolean rename(final String oldLayerName, final String newLayerName)
 			throws StorageException {
 		log.info("Renaming SQLite cached layer " + oldLayerName + " to " + newLayerName);
+		Connection conn = connections.remove(oldLayerName);
+		try {
+			conn.close();
+		} catch(Exception e){}
 		return getLayerPath(oldLayerName).renameTo(getLayerPath(newLayerName));
 	}
 
