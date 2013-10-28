@@ -114,7 +114,7 @@ public class SQLiteBlobStore implements BlobStore {
 					conn = createDatabase(file);
 				} else {
 					conn = DriverManager.getConnection("jdbc:sqlite:"
-							+ file.getAbsolutePath());				
+							+ file.getAbsolutePath());
 				}
 				connections.put(layerName, conn);
 			}
@@ -160,11 +160,14 @@ public class SQLiteBlobStore implements BlobStore {
 	 */
 	public boolean delete(final String layerName) throws StorageException {
 		log.info("Deleting SQLite cached layer " + layerName);
-		Connection conn = connections.remove(layerName);
-		try {
-			conn.close();
-		} catch(Exception e){}
-		return getLayerPath(layerName).delete();
+		synchronized (createLock) {
+			Connection conn = connections.remove(layerName);
+			try {
+				conn.close();
+			} catch (Exception e) {
+			}
+			return getLayerPath(layerName).delete();
+		}
 	}
 
 	/**
@@ -204,12 +207,17 @@ public class SQLiteBlobStore implements BlobStore {
 	 */
 	public boolean rename(final String oldLayerName, final String newLayerName)
 			throws StorageException {
-		log.info("Renaming SQLite cached layer " + oldLayerName + " to " + newLayerName);
-		Connection conn = connections.remove(oldLayerName);
-		try {
-			conn.close();
-		} catch(Exception e){}
-		return getLayerPath(oldLayerName).renameTo(getLayerPath(newLayerName));
+		log.info("Renaming SQLite cached layer " + oldLayerName + " to "
+				+ newLayerName);
+		synchronized (createLock) {
+			Connection conn = connections.remove(oldLayerName);
+			try {
+				conn.close();
+			} catch (Exception e) {
+			}
+			return getLayerPath(oldLayerName).renameTo(
+					getLayerPath(newLayerName));
+		}
 	}
 
 	/**
@@ -231,7 +239,8 @@ public class SQLiteBlobStore implements BlobStore {
 		final String gridSetId = stObj.getGridSetId();
 		final String format = stObj.getBlobFormat();
 		final long[] xyz = stObj.getXYZ();
-		log.info("Deleting SQLite cached layer " + layerName + " (" + format + ")");
+		log.info("Deleting SQLite cached layer " + layerName + " (" + format
+				+ ")");
 		Connection conn = getConnection(layerName);
 		try {
 			PreparedStatement stmt = conn
@@ -318,7 +327,7 @@ public class SQLiteBlobStore implements BlobStore {
 				ResultSet rslt = stmt.executeQuery();
 				if (rslt.next()) {
 					Resource r = new ByteArrayResource(rslt.getBytes("data"));
-					if(r.getSize() <= 0)
+					if (r.getSize() <= 0)
 						return false;
 					stObj.setBlob(r);
 					stObj.setCreated(r.getLastModified());
