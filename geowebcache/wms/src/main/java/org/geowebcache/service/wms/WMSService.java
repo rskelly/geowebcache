@@ -19,8 +19,10 @@ package org.geowebcache.service.wms;
 
 import static org.geowebcache.grid.GridUtil.findBestMatchingGrid;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.channels.Channels;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geowebcache.GeoWebCacheDispatcher;
 import org.geowebcache.GeoWebCacheException;
+import org.geowebcache.GeoWebCacheExtensions;
+import org.geowebcache.config.Configuration;
+import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.conveyor.Conveyor;
 import org.geowebcache.conveyor.ConveyorTile;
 import org.geowebcache.grid.BoundingBox;
@@ -39,6 +44,7 @@ import org.geowebcache.grid.GridMismatchException;
 import org.geowebcache.grid.GridSubset;
 import org.geowebcache.grid.SRS;
 import org.geowebcache.io.Resource;
+import org.geowebcache.layer.ProxyLayer;
 import org.geowebcache.layer.TileLayer;
 import org.geowebcache.layer.TileLayerDispatcher;
 import org.geowebcache.mime.MimeException;
@@ -50,8 +56,13 @@ import org.geowebcache.storage.StorageBroker;
 import org.geowebcache.util.NullURLMangler;
 import org.geowebcache.util.ServletUtils;
 import org.geowebcache.util.URLMangler;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-public class WMSService extends Service {
+import com.thoughtworks.xstream.XStream;
+
+public class WMSService extends Service{
     public static final String SERVICE_WMS = "wms";
     
     static final String SERVICE_PATH = "/"+GeoWebCacheDispatcher.TYPE_SERVICE+"/"+SERVICE_WMS;
@@ -77,6 +88,9 @@ public class WMSService extends Service {
     
     private GeoWebCacheDispatcher controller = null;
     
+    private String hintsConfig = "DEFAULT";
+    
+    private WMSUtilities utility;
 
     /**
      * Protected no-argument constructor to allow run-time instrumentation
@@ -100,7 +114,7 @@ public class WMSService extends Service {
         this.tld = tld;
         this.stats = stats;
         this.urlMangler = urlMangler;
-        this.controller = controller;
+        this.controller = controller;       
     }
 
     @Override
@@ -256,16 +270,31 @@ public class WMSService extends Service {
                 wmsCap.writeResponse(tile.servletResp);
             } else if (tile.getHint().equalsIgnoreCase("getmap")) {
                 WMSTileFuser wmsFuser = new WMSTileFuser(tld, sb, tile.servletReq);
+                // Setting of the applicationContext
+                wmsFuser.setApplicationContext(utility.getApplicationContext());
+                // Setting of the hintConfiguration if present
+                wmsFuser.setHintsConfiguration(hintsConfig);
                 try {
                     wmsFuser.writeResponse(tile.servletResp, stats);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             } else if (tile.getHint().equalsIgnoreCase("getfeatureinfo")) {
                 handleGetFeatureInfo(tile);
             } else {
-                WMSRequests.handleProxy(tld, tile);
+                // see if we can proxy the request
+                TileLayer tl = tld.getTileLayer(tile.getLayerId());
+
+                if(tl == null) {
+                    throw new GeoWebCacheException(tile.getLayerId() + " is unknown.");
+                }
+                
+                if(tl instanceof ProxyLayer) {
+                    ((ProxyLayer) tl).proxyRequest(tile);
+                } else {
+                    throw new GeoWebCacheException(tile.getLayerId() + " cannot cascade WMS requests.");
+                }
             }
         } else {
             throw new GeoWebCacheException("The WMS Service would love to help, "
@@ -357,7 +386,28 @@ public class WMSService extends Service {
     }
 
     public void setFullWMS(String trueFalse) {
-        this.fullWMS = Boolean.parseBoolean(trueFalse);
+        // Selection of the configurations 
+        List<Configuration> configs = new ArrayList<Configuration>(GeoWebCacheExtensions.extensions(Configuration.class));
+        // Selection of the Configuration file associated to geowebcache.xml
+        XMLConfiguration gwcXMLconfig = null;
+        for(Configuration config : configs){
+            if(config instanceof XMLConfiguration){
+                gwcXMLconfig = (XMLConfiguration) config;
+                break;
+            }
+        }
+        // From the configuration file the "fullWMS" parameter is searched
+        Boolean wmsFull = null;
+        if(gwcXMLconfig!=null){
+            wmsFull = gwcXMLconfig.getfullWMS();
+        }                
+        
+        if(wmsFull!=null){
+            this.fullWMS = wmsFull;
+        }else{
+            this.fullWMS = Boolean.parseBoolean(trueFalse);            
+        }
+        // Log if fullWMS is enabled
         if (this.fullWMS) {
             log.info("Will recombine tiles for non-tiling clients.");
         } else {
@@ -381,5 +431,13 @@ public class WMSService extends Service {
         } else {
             log.info("Will NOT proxy requests that miss tiled=true to backend.");
         }
+    }
+
+    public void setHintsConfig(String hintsConfig) {
+        this.hintsConfig = hintsConfig;
+    }
+    
+    public void setUtility(WMSUtilities utility) {
+        this.utility = utility;
     }
 }

@@ -3,9 +3,9 @@
 Quickstart
 ==========
 
-This section describes how to get started quickly with GeoWebCache without knowing much about the :ref:`configuration`.
+This section describes how to get quickly started with GeoWebCache without knowing much about the :ref:`configuration`.
 
-All servers that conform to the `OGC Web Map Service specification <http://www.opengeospatial.org/standards/wms>`_ must publish what is known as a **capabilities document** (sometimes also known as a GetCapabilities document after the request used to fetch it). This is an XML file that describes every layer that is available to the user. GeoWebCache can use this information to configure itself automatically.
+All servers conforming to the `OGC Web Map Service specification <http://www.opengeospatial.org/standards/wms>`_ publish what is known as a **capabilities document** (sometimes also known as a GetCapabilities document after the request used to fetch it). This is an XML file that describes the layers exposed by the WMS service and available to the user. GeoWebCache can use this information to configure itself automatically.
 
 .. _quickstart.xml:
 
@@ -14,7 +14,7 @@ View preconfigured layers
 
 GeoWebCache comes preconfigured with three layers.  To view them, navigate to your GeoWebCache demo page at ``http://GEOWEBCACHE_URL/demo`` (often this is ``http://localhost:8080/geowebcache/demo``).  Click on any of the links next to the :guilabel:`OpenLayers` column.
 
-These layers are all served from the WMS available at ``http://demo.opengeo.org/geoserver/``.
+These layers are all served by the WMS available at ``http://demo.opengeo.org/geoserver/``.
 
 .. list-table::
    :header-rows: 1
@@ -36,7 +36,7 @@ These layers are all served from the WMS available at ``http://demo.opengeo.org/
 View layers from a WMS
 ----------------------
 
-The file :file:`geowebcache-core-context.xml` is a configuration file that controls how the application is loaded. It is located inside the WEB-INF folder, typically :file:`/opt/apache-tomcat-6.0.29/webapps/geowebcache/WEB-INF/` or :file:`C:\\Program Files\\Apache Software Foundation\\Tomcat 6.0.29\\webapps\\geowebcache\\WEB-INF` along with many other configuration files.
+The file :file:`geowebcache-core-context.xml` is a configuration file controling how the application is loaded. It is located inside the WEB-INF folder, typically :file:`/opt/apache-tomcat-6.0.29/webapps/geowebcache/WEB-INF/` or :file:`C:\\Program Files\\Apache Software Foundation\\Tomcat 6.0.29\\webapps\\geowebcache\\WEB-INF` along with several other configuration files.
 
 #. Open :file:`geowebcache-core-context.xml` in a text editor.
 
@@ -62,26 +62,6 @@ The file :file:`geowebcache-core-context.xml` is a configuration file that contr
 
    .. warning::  The ampersand sign, ``&`` has to be written out as ``&amp;`` in XML files. Also, make sure to omit the line breaks.
 
-#. Since GeoWebCache is not configured to look to a WMS by default, we need to enable this.  Find the block beginning with:
-
-   .. code-block:: xml
-
-      <bean id="gwcTLDispatcher" class="org.geowebcache.layer.TileLayerDispatcher">
-
-#. Inside the ``constructor-arg`` ``<list>`` locate the line that says:
- 
-   .. code-block:: xml
-
-      <!-- ref bean="gwcWMSConfig" / -->
-
-   and uncomment the line
-
-   .. code-block:: xml
-
-      <ref bean="gwcWMSConfig" />
-
-   .. note:: The line immediately underneath this, ``<ref bean="gwcXmlConfig" />``, is what loads the three layers as mentioned in the :ref:`quickstart.xml` section.  Commenting this line out will remove those layers from the layer list.
-
 #. Save the file and reload the servlet using Tomcat's Manager, or by restarting the servlet container.
 
 #. Navigate to or reload your GeoWebCache demo page.  You should see the list of layers as advertised in the WMS capabilities document.
@@ -89,12 +69,14 @@ The file :file:`geowebcache-core-context.xml` is a configuration file that contr
 Special cases
 -------------
 
-The following are some extra parameters may need or want to add to get your WMS layers loading properly in GeoWebCache.
+Below are some extra parameters that may be needed or that you may want to add to get your WMS layers loading properly in GeoWebCache.
 
 Map vendor parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
-If your WMS server requires additional vendor parameters to be passed with every request, such as MapServer's ``map`` argument, set this in the fifth ``constructor-arg`` value.  Replace:
+If your WMS server requires additional vendor parameters to be passed with every request, such as MapServer's ``map`` argument, set this in the fifth ``constructor-arg`` value.
+
+Replace:
 
    .. code-block:: xml
 
@@ -125,26 +107,15 @@ Other MIME types can be specified here as well.
 
 Metatile factor
 ~~~~~~~~~~~~~~~
+ 
+The metatiling factor can be modified by editing the third ``constructor-arg`` value.  This will affect all layers derived from this document.  See the :ref:`concepts.metatiles` section for more information.
 
-It is possible to change the metatiling factor by changing the third ``constructor-arg`` value.  This will affect all layers derived from this document.  See the :ref:`concepts.metatiles` section for more information.
 
 Multiple capabilities documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-GeoWebCache can be configured from multiple capabilities documents.  To do this, you can duplicate the ``gwcWMSConfig`` bean, change the id, and add it to the list inside the ``gwcTLDispatcher`` bean, for example:
+GeoWebCache can be configured from multiple capabilities documents.  To do this, you can duplicate the ``gwcWMSConfig`` bean with a new id: ``gwcWMSConfig2`` for instance.
 
-   .. code-block:: xml
-
-      <bean id="gwcTLDispatcher" class="org.geowebcache.layer.TileLayerDispatcher">
-        <constructor-arg ref="gwcGridSetBroker"/>
-        <constructor-arg>
-          <list>
-            <ref bean="gwcWMSConfig"/>
-            <ref bean="gwcWMSConfig2"/>
-            <ref bean="gwcWMSConfig3"/>
-          </list>
-        </constructor-arg>
-      </bean>
 
 Additional information
 ----------------------
