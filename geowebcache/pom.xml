@@ -1,17 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <!-- mvn -Dtest=StorageBrokerTest -Dmaven.test.jvmargs='-XX:+HeapDumpOnOutOfMemoryError -Xms32m -Xmx32m' test -->  
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.geowebcache</groupId>
   <artifactId>geowebcache</artifactId>
   <packaging>pom</packaging>
-  <version>1.6-SNAPSHOT</version>
+  <version>1.7-SNAPSHOT</version>
   <name>geowebcache</name>
   <url>http://geowebcache.org</url>
 
   <properties>
-    <gt.version>12-SNAPSHOT</gt.version>
+    <gt.version>13-SNAPSHOT</gt.version>
     <jts.version>1.13</jts.version>
     <spring.version>3.1.1.RELEASE</spring.version>
     <restlet.version>1.0.8</restlet.version>
@@ -27,20 +26,21 @@
     <log4j.version>1.2.14</log4j.version>
     <h2.version>1.1.119</h2.version>
     <postgresql.version>8.4-701.jdbc3</postgresql.version>
-    <oracle.version></oracle.version>
+    <oracle.version/>
     <java.awt.headless>true</java.awt.headless>
     <jalopy.phase>disabled</jalopy.phase>
     <jalopy.srcExcludesPattern>disabled</jalopy.srcExcludesPattern>
     <test.maxHeapSize>64M</test.maxHeapSize>
-    <maven.test.jvmargs></maven.test.jvmargs>
+    <maven.test.jvmargs/>
     <imageio-ext.version>1.1.10</imageio-ext.version>
+    <hazelcast.version>2.3.1</hazelcast.version>
   </properties>
   
   <repositories>
     <repository>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <url>http://repo.opengeo.org/</url>
+      <id>boundless</id>
+      <name>Boundless Maven Repository</name>
+      <url>http://repo.boundlessgeo.com/main</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -70,11 +70,17 @@
  
   <distributionManagement>
     <repository>
-      <id>opengeo</id>
-      <name>opengeo</name>
-      <url>dav:http://repo.opengeo.org</url>
+      <id>boundless</id>
+      <name>Boundless</name>
+      <url>http://repo.boundlessgeo.com/main</url>
       <uniqueVersion>false</uniqueVersion>
     </repository>
+    <snapshotRepository>
+      <id>boundless</id>
+      <uniqueVersion>false</uniqueVersion>
+      <name>Boundless Maven Repository</name>
+      <url>http://repo.boundlessgeo.com/main</url>
+     </snapshotRepository>
   </distributionManagement>
 
  <dependencyManagement>
@@ -535,6 +541,7 @@
     <configuration>
       <source>1.7</source>
       <target>1.7</target>
+      <encoding>UTF-8</encoding>
     </configuration>
       </plugin>
       
@@ -593,7 +600,7 @@
             <descriptor>release/war.xml</descriptor>
             <descriptor>release/doc.xml</descriptor>
           </descriptors>
-          <finalName>geowebcache-1.6.0-SNAPSHOT</finalName>
+          <finalName>geowebcache-1.7-SNAPSHOT</finalName>
           <outputDirectory>${project.build.directory}/release</outputDirectory>
         </configuration>
       </plugin>
@@ -620,6 +627,26 @@
     </pluginManagement>
   </build>
   
+  <profiles>
+    <profile>
+      <id>deploy.boundless</id>
+      <distributionManagement>
+        <repository>
+          <id>boundless</id>
+          <uniqueVersion>false</uniqueVersion>
+          <name>Boundless Maven Repository</name>
+          <url>http://repo.boundlessgeo.com/main</url>
+        </repository>
+        <snapshotRepository>
+          <id>boundless</id>
+          <uniqueVersion>false</uniqueVersion>
+          <name>Boundless Maven Repository</name>
+          <url>http://repo.boundlessgeo.com/main</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+  </profiles>
+
   <modules>
     <module>core</module>
     <module>georss</module>
@@ -633,5 +660,6 @@
     <module>web</module>
     <module>diskquota</module>
     <module>arcgiscache</module>
+	<module>distributed</module>
   </modules>
 </project>
