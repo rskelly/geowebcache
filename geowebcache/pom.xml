@@ -5,7 +5,7 @@
   <groupId>org.geowebcache</groupId>
   <artifactId>geowebcache</artifactId>
   <packaging>pom</packaging>
-  <version>1.7-SQLITE</version>
+  <version>${gwc.version}</version>
   <name>geowebcache</name>
   <url>http://geowebcache.org</url>
 
@@ -34,6 +34,7 @@
     <maven.test.jvmargs/>
     <imageio-ext.version>1.1.10</imageio-ext.version>
     <hazelcast.version>2.3.1</hazelcast.version>
+    <gwc.version>1.7-SQLITE</gwc.version>
   </properties>
   
   <repositories>
